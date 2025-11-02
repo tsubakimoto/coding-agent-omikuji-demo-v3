@@ -1,0 +1,22 @@
+{
+  "name": "coding-agent-omikuji-demo-v3",
+  "version": "1.0.0",
+  "description": "おみくじで遊べる静的Webアプリケーションです。",
+  "main": "omikuji.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "omikuji",
+    "fortune",
+    "japanese"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "jsdom": "^27.1.0"
+  }
+}

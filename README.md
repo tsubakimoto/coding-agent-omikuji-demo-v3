@@ -68,3 +68,36 @@ https://tsubakimoto.github.io/coding-agent-omikuji-demo-v3/
 1. 「おみくじを回す」ボタンをクリックします
 2. ランダムでおみくじ結果が表示されます
 3. 何度でもおみくじを回すことができます
+
+## テストの実行
+
+このプロジェクトにはJestを使用したユニットテストが含まれています。
+
+### テストの準備
+
+```bash
+# 依存関係をインストール
+npm install
+```
+
+### テストの実行
+
+```bash
+# テストを実行
+npm test
+```
+
+テストはおみくじのロジック（ランダム抽選機能、運勢の種類など）を検証します。
+
+## プロジェクト構成
+
+```
+.
+├── index.html          # メインHTMLファイル
+├── style.css           # スタイルシート
+├── omikuji.js          # おみくじのロジック
+├── omikuji.test.js     # ユニットテスト
+├── jest.config.js      # Jestの設定
+├── package.json        # プロジェクト設定とテスト依存関係
+└── README.md           # このファイル
+```
