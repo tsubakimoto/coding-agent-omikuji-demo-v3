@@ -16,19 +16,12 @@ const translations = {
 
 let currentLanguage = 'ja';
 
-const fortunes = ['大吉', '中吉', '小吉', '吉', '凶', '大凶'];
+// For backward compatibility with tests and external code
+const fortunes = translations.ja.fortunes;
 
 function getRandomFortune() {
-    const randomIndex = Math.floor(Math.random() * fortunes.length);
-    const fortuneKey = fortunes[randomIndex];
-    
-    // Return translated fortune based on current language
-    const jaIndex = translations.ja.fortunes.indexOf(fortuneKey);
-    if (jaIndex !== -1) {
-        return translations[currentLanguage].fortunes[jaIndex];
-    }
-    
-    return fortuneKey;
+    const randomIndex = Math.floor(Math.random() * translations.ja.fortunes.length);
+    return translations[currentLanguage].fortunes[randomIndex];
 }
 
 function drawOmikuji() {
