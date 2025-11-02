@@ -30,10 +30,44 @@ function drawOmikuji() {
     }, 500);
 }
 
+// Theme switching functionality
+function initTheme() {
+    const savedTheme = localStorage.getItem('omikuji-theme');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+    
+    // Apply saved theme or default to light
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        themeIcon.textContent = '☀️';
+    } else {
+        themeIcon.textContent = '🌙';
+    }
+}
+
+function toggleTheme() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+    
+    document.body.classList.toggle('dark-theme');
+    
+    const isDark = document.body.classList.contains('dark-theme');
+    themeIcon.textContent = isDark ? '☀️' : '🌙';
+    
+    // Save theme preference
+    localStorage.setItem('omikuji-theme', isDark ? 'dark' : 'light');
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const drawButton = document.getElementById('drawButton');
+    const themeToggle = document.getElementById('themeToggle');
+    
     drawButton.addEventListener('click', drawOmikuji);
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    // Initialize theme
+    initTheme();
 });
 
 // Export for testing (Node.js environment)
