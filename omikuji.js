@@ -34,7 +34,16 @@ function drawOmikuji() {
 
 // Theme switching functionality
 function initTheme() {
-    const savedTheme = localStorage.getItem('omikuji-theme');
+    let savedTheme = null;
+    
+    // Safely retrieve saved theme
+    try {
+        savedTheme = localStorage.getItem('omikuji-theme');
+    } catch (e) {
+        // localStorage might be disabled or unavailable
+        console.warn('localStorage not available:', e);
+    }
+    
     const themeToggle = document.getElementById('themeToggle');
     
     if (!themeToggle) return;
@@ -67,7 +76,12 @@ function toggleTheme() {
     themeIcon.textContent = isDark ? '☀️' : '🌙';
     
     // Save theme preference
-    localStorage.setItem('omikuji-theme', isDark ? 'dark' : 'light');
+    try {
+        localStorage.setItem('omikuji-theme', isDark ? 'dark' : 'light');
+    } catch (e) {
+        // localStorage might be disabled, quota exceeded, or unavailable
+        console.warn('Could not save theme preference:', e);
+    }
 }
 
 // Initialize when DOM is loaded
