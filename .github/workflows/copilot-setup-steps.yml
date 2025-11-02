@@ -29,3 +29,7 @@ jobs:
 
       - name: Install JavaScript dependencies
         run: npm ci
+
+      # https://github.com/orgs/community/discussions/177903
+      - name: Add GitHub host environment variable
+        run: echo "GITHUB_HOST=github.com" >> $GITHUB_ENV
