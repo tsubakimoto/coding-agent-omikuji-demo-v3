@@ -9,6 +9,8 @@ function drawOmikuji() {
     const resultElement = document.getElementById('result');
     const drawButton = document.getElementById('drawButton');
     
+    if (!resultElement || !drawButton) return;
+    
     // Disable button during animation
     drawButton.disabled = true;
     
