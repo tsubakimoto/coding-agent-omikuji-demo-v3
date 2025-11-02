@@ -34,7 +34,12 @@ function drawOmikuji() {
 function initTheme() {
     const savedTheme = localStorage.getItem('omikuji-theme');
     const themeToggle = document.getElementById('themeToggle');
+    
+    if (!themeToggle) return;
+    
     const themeIcon = themeToggle.querySelector('.theme-icon');
+    
+    if (!themeIcon) return;
     
     // Apply saved theme or default to light
     if (savedTheme === 'dark') {
@@ -47,7 +52,12 @@ function initTheme() {
 
 function toggleTheme() {
     const themeToggle = document.getElementById('themeToggle');
+    
+    if (!themeToggle) return;
+    
     const themeIcon = themeToggle.querySelector('.theme-icon');
+    
+    if (!themeIcon) return;
     
     document.body.classList.toggle('dark-theme');
     
