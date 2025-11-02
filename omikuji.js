@@ -73,8 +73,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const drawButton = document.getElementById('drawButton');
     const themeToggle = document.getElementById('themeToggle');
     
-    drawButton.addEventListener('click', drawOmikuji);
-    themeToggle.addEventListener('click', toggleTheme);
+    if (drawButton) {
+        drawButton.addEventListener('click', drawOmikuji);
+    }
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+    }
     
     // Initialize theme
     initTheme();
