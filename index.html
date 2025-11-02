@@ -13,9 +13,31 @@
     
     <div class="container">
         <h1>🎋 おみくじ 🎋</h1>
-        <div id="result"></div>
-        <button id="drawButton">おみくじを回す</button>
-        <p class="description">ボタンを押して、今日の運勢を占おう！</p>
+        
+        <div id="authSection" class="auth-section">
+            <div id="loginView" class="auth-view">
+                <p class="auth-message">GitHubアカウントでログインして、あなたのおみくじ履歴を保存しましょう！</p>
+                <button id="loginButton" class="auth-button">GitHubでログイン</button>
+            </div>
+            <div id="userView" class="auth-view hidden">
+                <div class="user-info">
+                    <img id="userAvatar" class="user-avatar" alt="User Avatar">
+                    <span id="userName" class="user-name"></span>
+                </div>
+                <button id="logoutButton" class="auth-button logout">ログアウト</button>
+            </div>
+        </div>
+        
+        <div id="omikujiSection">
+            <div id="result"></div>
+            <button id="drawButton">おみくじを回す</button>
+            <p class="description">ボタンを押して、今日の運勢を占おう！</p>
+            
+            <div id="historySection" class="history-section hidden">
+                <h3>あなたのおみくじ履歴</h3>
+                <div id="historyList" class="history-list"></div>
+            </div>
+        </div>
     </div>
 
     <script src="omikuji.js"></script>
