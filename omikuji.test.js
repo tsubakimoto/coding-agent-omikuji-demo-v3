@@ -140,13 +140,7 @@ describe('Omikuji Application', () => {
 
     describe('Fortune history', () => {
         beforeEach(() => {
-            // Clear ALL storage first
-            Object.keys(mockSessionStorage).forEach(key => {
-                if (typeof mockSessionStorage[key] !== 'function') {
-                    mockSessionStorage.removeItem(key);
-                }
-            });
-            // Use the mock's clear method
+            // Clear storage before each test
             mockSessionStorage.clear();
             
             // Set up a logged-in user for history tests

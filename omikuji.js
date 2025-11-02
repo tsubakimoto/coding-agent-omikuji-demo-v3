@@ -1,6 +1,8 @@
 const fortunes = ['大吉', '中吉', '小吉', '吉', '凶', '大凶'];
 
 // GitHub OAuth configuration
+// Note: In production, use environment variables or configuration files
+// Example: const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
 const GITHUB_CLIENT_ID = 'Iv23liQlssCZlvEIJU5i'; // This should be set by the user
 const REDIRECT_URI = typeof window !== 'undefined' ? window.location.origin + window.location.pathname : '';
 
@@ -222,9 +224,6 @@ async function handleOAuthCallback() {
         // In a real app, you'd exchange the code for an access token on the backend
         console.warn('Note: This is a demo. In production, exchange the code on the backend.');
         
-        // For demo: Store a flag that user attempted login
-        sessionStorage.setItem('github-auth-attempted', 'true');
-        
         // Clear URL parameters
         window.history.replaceState({}, document.title, window.location.pathname);
         
@@ -239,6 +238,8 @@ async function handleOAuthCallback() {
 }
 
 function showLoginInstructions() {
+    // Note: Using alert/prompt for demo purposes only
+    // In production, use a proper modal dialog or form interface for better UX and accessibility
     alert('デモモード: 実際のGitHub認証を実装するには、バックエンドサーバーでアクセストークンの交換を行う必要があります。\n\nテスト用に、手動でユーザー情報を入力できます。');
     
     const username = prompt('GitHubユーザー名を入力してください（テスト用）:');
