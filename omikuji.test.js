@@ -1,4 +1,31 @@
-const { fortunes, getRandomFortune } = require('./omikuji');
+const { fortunes, getRandomFortune, saveFortuneToHistory, loginUser, logout } = require('./omikuji');
+
+// Mock sessionStorage
+const mockSessionStorage = (() => {
+    let store = {};
+    return {
+        getItem: (key) => store[key] || null,
+        setItem: (key, value) => { store[key] = value.toString(); },
+        removeItem: (key) => { delete store[key]; },
+        clear: () => { 
+            Object.keys(store).forEach(key => delete store[key]);
+        },
+        key: (index) => Object.keys(store)[index] || null,
+        get length() { return Object.keys(store).length; }
+    };
+})();
+
+// Set up global sessionStorage mock
+global.sessionStorage = mockSessionStorage;
+
+// Mock currentUser (module-level variable in omikuji.js)
+let mockCurrentUser = null;
+
+// Override the module's currentUser through the exported functions
+beforeEach(() => {
+    mockSessionStorage.clear();
+    mockCurrentUser = null;
+});
 
 describe('Omikuji Application', () => {
     describe('fortunes array', () => {
@@ -66,6 +93,141 @@ describe('Omikuji Application', () => {
             
             // In 1000 draws, we should get all 6 types at least once
             expect(drawnFortunes.size).toBe(fortunes.length);
+        });
+    });
+
+    describe('User authentication', () => {
+        test('loginUser should store user data in sessionStorage', () => {
+            const userData = {
+                login: 'testuser',
+                avatar_url: 'https://github.com/testuser.png'
+            };
+            
+            loginUser(userData);
+            
+            const storedData = sessionStorage.getItem('github-user');
+            expect(storedData).toBeTruthy();
+            expect(JSON.parse(storedData)).toEqual(userData);
+        });
+
+        test('logout should clear user data from sessionStorage', () => {
+            const userData = {
+                login: 'testuser',
+                avatar_url: 'https://github.com/testuser.png'
+            };
+            
+            loginUser(userData);
+            expect(sessionStorage.getItem('github-user')).toBeTruthy();
+            
+            logout();
+            expect(sessionStorage.getItem('github-user')).toBeNull();
+        });
+
+        test('logout should clear all history data from sessionStorage', () => {
+            const userData = {
+                login: 'testuser',
+                avatar_url: 'https://github.com/testuser.png'
+            };
+            
+            loginUser(userData);
+            sessionStorage.setItem('omikuji-history-testuser', JSON.stringify([{ fortune: '大吉', timestamp: new Date().toISOString() }]));
+            
+            logout();
+            
+            expect(sessionStorage.getItem('omikuji-history-testuser')).toBeNull();
+        });
+    });
+
+    describe('Fortune history', () => {
+        beforeEach(() => {
+            // Clear ALL storage first
+            Object.keys(mockSessionStorage).forEach(key => {
+                if (typeof mockSessionStorage[key] !== 'function') {
+                    mockSessionStorage.removeItem(key);
+                }
+            });
+            // Use the mock's clear method
+            mockSessionStorage.clear();
+            
+            // Set up a logged-in user for history tests
+            const userData = {
+                login: 'testuser',
+                avatar_url: 'https://github.com/testuser.png'
+            };
+            loginUser(userData);
+        });
+
+        test('saveFortuneToHistory should save fortune to sessionStorage when logged in', () => {
+            const fortune = '大吉';
+            saveFortuneToHistory(fortune);
+            
+            const historyKey = 'omikuji-history-testuser';
+            const history = JSON.parse(sessionStorage.getItem(historyKey));
+            
+            expect(history).toBeTruthy();
+            expect(history.length).toBe(1);
+            expect(history[0].fortune).toBe(fortune);
+            expect(history[0].timestamp).toBeTruthy();
+        });
+
+        test('saveFortuneToHistory should add new fortunes to the beginning of history', () => {
+            const historyKey = 'omikuji-history-testuser';
+            
+            // Manually clear any existing history to ensure clean state
+            sessionStorage.removeItem(historyKey);
+            
+            saveFortuneToHistory('大吉');
+            saveFortuneToHistory('凶');
+            saveFortuneToHistory('中吉');
+            
+            const history = JSON.parse(sessionStorage.getItem(historyKey));
+            
+            expect(history.length).toBe(3);
+            expect(history[0].fortune).toBe('中吉'); // Most recent
+            expect(history[1].fortune).toBe('凶');
+            expect(history[2].fortune).toBe('大吉');
+        });
+
+        test('saveFortuneToHistory should keep only last 10 entries', () => {
+            // Add 15 fortunes
+            for (let i = 0; i < 15; i++) {
+                saveFortuneToHistory(getRandomFortune());
+            }
+            
+            const historyKey = 'omikuji-history-testuser';
+            const history = JSON.parse(sessionStorage.getItem(historyKey));
+            
+            expect(history.length).toBe(10);
+        });
+
+        test('saveFortuneToHistory should not save when user is not logged in', () => {
+            logout(); // Log out first
+            
+            saveFortuneToHistory('大吉');
+            
+            const historyKey = 'omikuji-history-testuser';
+            const history = sessionStorage.getItem(historyKey);
+            
+            expect(history).toBeNull();
+        });
+
+        test('each user should have their own separate history', () => {
+            // First user
+            loginUser({ login: 'user1', avatar_url: 'https://github.com/user1.png' });
+            saveFortuneToHistory('大吉');
+            
+            // Second user
+            loginUser({ login: 'user2', avatar_url: 'https://github.com/user2.png' });
+            saveFortuneToHistory('凶');
+            
+            const history1 = JSON.parse(sessionStorage.getItem('omikuji-history-user1'));
+            const history2 = JSON.parse(sessionStorage.getItem('omikuji-history-user2'));
+            
+            expect(history1.length).toBe(1);
+            expect(history1[0].fortune).toBe('大吉');
+            
+            expect(history2.length).toBe(1);
+            expect(history2[0].fortune).toBe('凶');
         });
     });
 });
