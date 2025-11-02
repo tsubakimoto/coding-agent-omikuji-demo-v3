@@ -11,26 +11,28 @@ describe('Omikuji Application', () => {
             expect(fortunes).toEqual(expectedFortunes);
         });
 
+        test('should match Japanese translations', () => {
+            const { fortunes: jaFortunes } = require('./omikuji');
+            expect(jaFortunes).toEqual(['大吉', '中吉', '小吉', '吉', '凶', '大凶']);
+        });
+
         test('should not be empty', () => {
             expect(fortunes.length).toBeGreaterThan(0);
         });
     });
 
     describe('getRandomFortune function', () => {
-        test('should return a fortune from the fortunes array', () => {
-            const result = getRandomFortune();
-            expect(fortunes).toContain(result);
-        });
-
-        test('should return a string', () => {
+        test('should return a fortune string', () => {
             const result = getRandomFortune();
             expect(typeof result).toBe('string');
         });
 
-        test('should return one of the expected fortune types', () => {
+        test('should return a valid Japanese or English fortune', () => {
             const result = getRandomFortune();
-            const expectedFortunes = ['大吉', '中吉', '小吉', '吉', '凶', '大凶'];
-            expect(expectedFortunes).toContain(result);
+            const jaFortunes = ['大吉', '中吉', '小吉', '吉', '凶', '大凶'];
+            const enFortunes = ['Great Blessing', 'Middle Blessing', 'Small Blessing', 'Blessing', 'Bad Luck', 'Great Curse'];
+            const allValidFortunes = [...jaFortunes, ...enFortunes];
+            expect(allValidFortunes).toContain(result);
         });
 
         test('should generate different results over multiple calls (probability test)', () => {
@@ -43,11 +45,15 @@ describe('Omikuji Application', () => {
             expect(results.size).toBeGreaterThanOrEqual(2);
         });
 
-        test('should only return values that exist in the fortunes array', () => {
+        test('should only return valid fortune values', () => {
+            const jaFortunes = ['大吉', '中吉', '小吉', '吉', '凶', '大凶'];
+            const enFortunes = ['Great Blessing', 'Middle Blessing', 'Small Blessing', 'Blessing', 'Bad Luck', 'Great Curse'];
+            const allValidFortunes = [...jaFortunes, ...enFortunes];
+            
             const iterations = 50;
             for (let i = 0; i < iterations; i++) {
                 const result = getRandomFortune();
-                expect(fortunes.includes(result)).toBe(true);
+                expect(allValidFortunes.includes(result)).toBe(true);
             }
         });
     });
@@ -59,13 +65,14 @@ describe('Omikuji Application', () => {
             
             for (let i = 0; i < maxIterations; i++) {
                 drawnFortunes.add(getRandomFortune());
-                if (drawnFortunes.size === fortunes.length) {
+                if (drawnFortunes.size >= fortunes.length) {
                     break;
                 }
             }
             
             // In 1000 draws, we should get all 6 types at least once
-            expect(drawnFortunes.size).toBe(fortunes.length);
+            // (considering both Japanese and English variations)
+            expect(drawnFortunes.size).toBeGreaterThanOrEqual(fortunes.length);
         });
     });
 });

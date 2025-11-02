@@ -1,8 +1,34 @@
+// Language support
+const translations = {
+    ja: {
+        title: '🎋 おみくじ 🎋',
+        button: 'おみくじを回す',
+        description: 'ボタンを押して、今日の運勢を占おう！',
+        fortunes: ['大吉', '中吉', '小吉', '吉', '凶', '大凶']
+    },
+    en: {
+        title: '🎋 Fortune Telling 🎋',
+        button: 'Draw Fortune',
+        description: 'Click the button to see your fortune today!',
+        fortunes: ['Great Blessing', 'Middle Blessing', 'Small Blessing', 'Blessing', 'Bad Luck', 'Great Curse']
+    }
+};
+
+let currentLanguage = 'ja';
+
 const fortunes = ['大吉', '中吉', '小吉', '吉', '凶', '大凶'];
 
 function getRandomFortune() {
     const randomIndex = Math.floor(Math.random() * fortunes.length);
-    return fortunes[randomIndex];
+    const fortuneKey = fortunes[randomIndex];
+    
+    // Return translated fortune based on current language
+    const jaIndex = translations.ja.fortunes.indexOf(fortuneKey);
+    if (jaIndex !== -1) {
+        return translations[currentLanguage].fortunes[jaIndex];
+    }
+    
+    return fortuneKey;
 }
 
 function drawOmikuji() {
@@ -30,6 +56,65 @@ function drawOmikuji() {
             drawButton.disabled = false;
         }, 300);
     }, 500);
+}
+
+// Language switching functionality
+function initLanguage() {
+    let savedLanguage = null;
+    
+    // Safely retrieve saved language
+    try {
+        savedLanguage = localStorage.getItem('omikuji-language');
+    } catch (e) {
+        console.warn('localStorage not available:', e);
+    }
+    
+    // Set language to saved preference or default to Japanese
+    if (savedLanguage === 'en' || savedLanguage === 'ja') {
+        currentLanguage = savedLanguage;
+    }
+    
+    updateLanguageUI();
+}
+
+function toggleLanguage() {
+    currentLanguage = currentLanguage === 'ja' ? 'en' : 'ja';
+    
+    // Save language preference
+    try {
+        localStorage.setItem('omikuji-language', currentLanguage);
+    } catch (e) {
+        console.warn('Could not save language preference:', e);
+    }
+    
+    updateLanguageUI();
+}
+
+function updateLanguageUI() {
+    const titleElement = document.querySelector('h1');
+    const drawButton = document.getElementById('drawButton');
+    const description = document.querySelector('.description');
+    const languageToggle = document.getElementById('languageToggle');
+    
+    if (titleElement) {
+        titleElement.textContent = translations[currentLanguage].title;
+    }
+    
+    if (drawButton) {
+        drawButton.textContent = translations[currentLanguage].button;
+    }
+    
+    if (description) {
+        description.textContent = translations[currentLanguage].description;
+    }
+    
+    if (languageToggle) {
+        languageToggle.textContent = currentLanguage === 'ja' ? 'EN' : 'JA';
+        languageToggle.setAttribute('aria-label', currentLanguage === 'ja' ? 'Switch to English' : '日本語に切り替え');
+    }
+    
+    // Update HTML lang attribute
+    document.documentElement.lang = currentLanguage;
 }
 
 // Theme switching functionality
@@ -88,6 +173,7 @@ function toggleTheme() {
 document.addEventListener('DOMContentLoaded', () => {
     const drawButton = document.getElementById('drawButton');
     const themeToggle = document.getElementById('themeToggle');
+    const languageToggle = document.getElementById('languageToggle');
     
     if (drawButton) {
         drawButton.addEventListener('click', drawOmikuji);
@@ -97,8 +183,13 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggle.addEventListener('click', toggleTheme);
     }
     
-    // Initialize theme
+    if (languageToggle) {
+        languageToggle.addEventListener('click', toggleLanguage);
+    }
+    
+    // Initialize theme and language
     initTheme();
+    initLanguage();
 });
 
 // Export for testing (Node.js environment)
