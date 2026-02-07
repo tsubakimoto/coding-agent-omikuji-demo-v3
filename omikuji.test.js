@@ -1,4 +1,4 @@
-const { fortunes, getRandomFortune, addToHistory, loadHistory, saveHistory, MAX_HISTORY_SIZE } = require('./omikuji');
+const { fortunes, getRandomFortune, addToHistory, loadHistory, saveHistory, clearHistory, MAX_HISTORY_SIZE } = require('./omikuji');
 
 describe('Omikuji Application', () => {
     describe('fortunes array', () => {
@@ -80,9 +80,8 @@ describe('Omikuji Application', () => {
         beforeEach(() => {
             // Clear localStorage before each test
             localStorage.clear();
-            // Reset history array
-            const omikuji = require('./omikuji');
-            omikuji.fortuneHistory.length = 0;
+            // Reset history using clearHistory function
+            clearHistory();
         });
 
         test('MAX_HISTORY_SIZE should be 5', () => {
@@ -123,7 +122,7 @@ describe('Omikuji Application', () => {
             const saved = localStorage.getItem('omikuji-history');
             expect(saved).toBeTruthy();
             
-            // Clear in-memory history
+            // Manually clear in-memory history without saving
             omikuji.fortuneHistory.length = 0;
             expect(omikuji.fortuneHistory.length).toBe(0);
             
@@ -132,6 +131,20 @@ describe('Omikuji Application', () => {
             expect(omikuji.fortuneHistory.length).toBe(2);
             expect(omikuji.fortuneHistory[0].fortune).toBe('中吉');
             expect(omikuji.fortuneHistory[1].fortune).toBe('大吉');
+        });
+
+        test('clearHistory should clear history array and save', () => {
+            const omikuji = require('./omikuji');
+            addToHistory('大吉');
+            addToHistory('中吉');
+            expect(omikuji.fortuneHistory.length).toBe(2);
+            
+            clearHistory();
+            expect(omikuji.fortuneHistory.length).toBe(0);
+            
+            // Verify it was persisted to localStorage
+            const saved = localStorage.getItem('omikuji-history');
+            expect(JSON.parse(saved)).toEqual([]);
         });
     });
 });

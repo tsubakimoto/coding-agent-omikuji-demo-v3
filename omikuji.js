@@ -70,6 +70,16 @@ function addToHistory(fortune) {
     updateHistoryUI();
 }
 
+function clearHistory() {
+    fortuneHistory.length = 0;
+    saveHistory();
+    updateHistoryUI();
+}
+
+function getLocale() {
+    return currentLanguage === 'ja' ? 'ja-JP' : 'en-US';
+}
+
 function updateHistoryUI() {
     const historyList = document.getElementById('historyList');
     const historyTitle = document.querySelector('.history-title');
@@ -88,7 +98,7 @@ function updateHistoryUI() {
     
     historyList.innerHTML = fortuneHistory.map(entry => {
         const date = new Date(entry.timestamp);
-        const timeString = date.toLocaleString(currentLanguage === 'ja' ? 'ja-JP' : 'en-US', {
+        const timeString = date.toLocaleString(getLocale(), {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
@@ -275,6 +285,7 @@ if (typeof module !== 'undefined' && module.exports) {
         addToHistory,
         loadHistory,
         saveHistory,
+        clearHistory,
         fortuneHistory,
         MAX_HISTORY_SIZE
     };
