@@ -1,4 +1,4 @@
-const { fortunes, getRandomFortune } = require('./omikuji');
+const { fortunes, getRandomFortune, addToHistory, loadHistory, saveHistory, MAX_HISTORY_SIZE } = require('./omikuji');
 
 describe('Omikuji Application', () => {
     describe('fortunes array', () => {
@@ -73,6 +73,65 @@ describe('Omikuji Application', () => {
             // In 1000 draws, we should get all 6 types at least once
             // (considering both Japanese and English variations)
             expect(drawnFortunes.size).toBeGreaterThanOrEqual(fortunes.length);
+        });
+    });
+
+    describe('History functionality', () => {
+        beforeEach(() => {
+            // Clear localStorage before each test
+            localStorage.clear();
+            // Reset history array
+            const omikuji = require('./omikuji');
+            omikuji.fortuneHistory.length = 0;
+        });
+
+        test('MAX_HISTORY_SIZE should be 5', () => {
+            expect(MAX_HISTORY_SIZE).toBe(5);
+        });
+
+        test('addToHistory should add entry to history', () => {
+            const omikuji = require('./omikuji');
+            addToHistory('大吉');
+            expect(omikuji.fortuneHistory.length).toBe(1);
+            expect(omikuji.fortuneHistory[0].fortune).toBe('大吉');
+            expect(omikuji.fortuneHistory[0].timestamp).toBeDefined();
+        });
+
+        test('history should not exceed MAX_HISTORY_SIZE', () => {
+            const omikuji = require('./omikuji');
+            for (let i = 0; i < 10; i++) {
+                addToHistory('大吉');
+            }
+            expect(omikuji.fortuneHistory.length).toBe(MAX_HISTORY_SIZE);
+        });
+
+        test('history should keep most recent entries', () => {
+            const omikuji = require('./omikuji');
+            for (let i = 0; i < 10; i++) {
+                addToHistory(`fortune-${i}`);
+            }
+            expect(omikuji.fortuneHistory[0].fortune).toBe('fortune-9');
+            expect(omikuji.fortuneHistory[4].fortune).toBe('fortune-5');
+        });
+
+        test('saveHistory and loadHistory should persist data', () => {
+            const omikuji = require('./omikuji');
+            addToHistory('大吉');
+            addToHistory('中吉');
+            
+            // Verify it was saved
+            const saved = localStorage.getItem('omikuji-history');
+            expect(saved).toBeTruthy();
+            
+            // Clear in-memory history
+            omikuji.fortuneHistory.length = 0;
+            expect(omikuji.fortuneHistory.length).toBe(0);
+            
+            // Load from localStorage
+            loadHistory();
+            expect(omikuji.fortuneHistory.length).toBe(2);
+            expect(omikuji.fortuneHistory[0].fortune).toBe('中吉');
+            expect(omikuji.fortuneHistory[1].fortune).toBe('大吉');
         });
     });
 });
