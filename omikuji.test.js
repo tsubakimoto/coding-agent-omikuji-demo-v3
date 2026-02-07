@@ -58,6 +58,65 @@ describe('Omikuji Application', () => {
         });
     });
 
+    describe('history tracking', () => {
+        const setupDom = () => {
+            document.body.innerHTML = `
+                <div id="result"></div>
+                <button id="drawButton">draw</button>
+                <button id="languageToggle">JA</button>
+                <p class="description"></p>
+                <div class="history">
+                    <h2 id="historyTitle">履歴</h2>
+                    <p id="historyEmpty" class="history-empty"></p>
+                    <ol id="historyList" class="history-list"></ol>
+                </div>
+            `;
+        };
+
+        const loadModule = () => {
+            let omikujiModule;
+            jest.isolateModules(() => {
+                omikujiModule = require('./omikuji');
+            });
+            document.dispatchEvent(new Event('DOMContentLoaded'));
+            return omikujiModule;
+        };
+
+        beforeEach(() => {
+            jest.resetModules();
+            localStorage.clear();
+            setupDom();
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        test('keeps only the latest five fortunes in history', () => {
+            const omikuji = loadModule();
+            const fortuneSequence = ['大吉', '中吉', '小吉', '吉', '凶', '大凶'];
+
+            fortuneSequence.forEach((fortune) => {
+                omikuji.addToHistory(fortune);
+            });
+
+            const historyItems = Array.from(document.querySelectorAll('#historyList li')).map((li) => li.textContent);
+            expect(historyItems).toEqual(['大凶', '凶', '吉', '小吉', '中吉']);
+        });
+
+        test('shows translated empty message when no history', () => {
+            loadModule();
+
+            const historyEmpty = document.getElementById('historyEmpty');
+            expect(historyEmpty.textContent).toBe('まだ結果がありません');
+
+            const languageToggle = document.getElementById('languageToggle');
+            languageToggle.click();
+
+            expect(historyEmpty.textContent).toBe('No draws yet');
+        });
+    });
+
     describe('Fortune distribution', () => {
         test('all fortunes should be possible to draw', () => {
             const drawnFortunes = new Set();

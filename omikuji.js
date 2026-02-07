@@ -4,17 +4,25 @@ const translations = {
         title: '🎋 おみくじ 🎋',
         button: 'おみくじを回す',
         description: 'ボタンを押して、今日の運勢を占おう！',
+        historyTitle: '履歴',
+        historyEmpty: 'まだ結果がありません',
         fortunes: ['大吉', '中吉', '小吉', '吉', '凶', '大凶']
     },
     en: {
         title: '🎋 Fortune Telling 🎋',
         button: 'Draw Fortune',
         description: 'Click the button to see your fortune today!',
+        historyTitle: 'History',
+        historyEmpty: 'No draws yet',
         fortunes: ['Great Blessing', 'Middle Blessing', 'Small Blessing', 'Blessing', 'Bad Luck', 'Great Curse']
     }
 };
 
+const HISTORY_STORAGE_KEY = 'omikuji-history';
+const HISTORY_LIMIT = 5;
+
 let currentLanguage = 'ja';
+let history = [];
 
 // For backward compatibility with tests and external code
 const fortunes = translations.ja.fortunes;
@@ -42,6 +50,7 @@ function drawOmikuji() {
         resultElement.textContent = fortune;
         resultElement.classList.remove('spinning');
         resultElement.classList.add('show');
+        addToHistory(fortune);
         
         // Remove show class after animation
         setTimeout(() => {
@@ -88,6 +97,7 @@ function updateLanguageUI() {
     const drawButton = document.getElementById('drawButton');
     const description = document.querySelector('.description');
     const languageToggle = document.getElementById('languageToggle');
+    const historyTitle = document.getElementById('historyTitle');
     
     if (titleElement) {
         titleElement.textContent = translations[currentLanguage].title;
@@ -105,9 +115,15 @@ function updateLanguageUI() {
         languageToggle.textContent = currentLanguage === 'ja' ? 'EN' : 'JA';
         languageToggle.setAttribute('aria-label', currentLanguage === 'ja' ? 'Switch to English' : '日本語に切り替え');
     }
+
+    if (historyTitle) {
+        historyTitle.textContent = translations[currentLanguage].historyTitle;
+    }
     
     // Update HTML lang attribute
     document.documentElement.lang = currentLanguage;
+
+    renderHistory();
 }
 
 // Theme switching functionality
@@ -162,6 +178,70 @@ function toggleTheme() {
     }
 }
 
+function loadHistory() {
+    try {
+        const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
+        if (savedHistory) {
+            const parsed = JSON.parse(savedHistory);
+            if (Array.isArray(parsed)) {
+                history = parsed.slice(0, HISTORY_LIMIT);
+            }
+        }
+    } catch (e) {
+        console.warn('Could not load history:', e);
+        history = [];
+    }
+}
+
+function saveHistory() {
+    try {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+    } catch (e) {
+        console.warn('Could not save history:', e);
+    }
+}
+
+function renderHistory() {
+    const historyList = document.getElementById('historyList');
+    const historyEmpty = document.getElementById('historyEmpty');
+    const historyTitle = document.getElementById('historyTitle');
+
+    if (historyTitle) {
+        historyTitle.textContent = translations[currentLanguage].historyTitle;
+    }
+
+    if (!historyList || !historyEmpty) return;
+
+    historyList.innerHTML = '';
+    historyEmpty.textContent = translations[currentLanguage].historyEmpty;
+
+    if (history.length === 0) {
+        historyEmpty.style.display = 'block';
+        historyList.style.display = 'none';
+        return;
+    }
+
+    historyEmpty.style.display = 'none';
+    historyList.style.display = 'block';
+
+    history.forEach((item) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = item;
+        historyList.appendChild(listItem);
+    });
+}
+
+function addToHistory(fortune) {
+    history = [fortune, ...history].slice(0, HISTORY_LIMIT);
+    saveHistory();
+    renderHistory();
+}
+
+function initHistory() {
+    loadHistory();
+    renderHistory();
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const drawButton = document.getElementById('drawButton');
@@ -183,12 +263,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize theme and language
     initTheme();
     initLanguage();
+    initHistory();
 });
 
 // Export for testing (Node.js environment)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         fortunes,
-        getRandomFortune
+        getRandomFortune,
+        addToHistory,
+        renderHistory
     };
 }
