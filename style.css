@@ -179,3 +179,53 @@ h1 {
 .spinning {
     animation: spin 0.5s ease-in-out;
 }
+
+.history-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid var(--shadow-light);
+}
+
+.history-title {
+    color: var(--text-color);
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+
+#historyList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#historyList li {
+    background: linear-gradient(135deg, var(--button-bg-start) 0%, var(--button-bg-end) 100%);
+    color: var(--button-text);
+    padding: 12px 20px;
+    margin: 8px 0;
+    border-radius: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 2px 8px var(--shadow-light);
+    transition: all 0.3s ease;
+}
+
+#historyList li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+#historyList li.no-history {
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: normal;
+    font-style: italic;
+    box-shadow: none;
+}
+
+#historyList li.no-history:hover {
+    transform: none;
+    box-shadow: none;
+}
