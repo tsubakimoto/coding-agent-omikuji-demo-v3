@@ -170,6 +170,65 @@ h1 {
     transition: color 0.3s ease;
 }
 
+.history-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid var(--shadow-light);
+}
+
+.history-title {
+    color: var(--text-color);
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.history-list li {
+    background: var(--bg-gradient-start);
+    color: var(--button-text);
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px var(--shadow-light);
+    transition: all 0.3s ease;
+}
+
+.history-list li:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+.history-fortune {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.history-time {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.no-history {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    justify-content: center !important;
+    font-style: italic;
+    box-shadow: none !important;
+}
+
+.no-history:hover {
+    transform: none !important;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg) scale(1); }
     50% { transform: rotate(180deg) scale(1.2); }

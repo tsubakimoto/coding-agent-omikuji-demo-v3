@@ -4,17 +4,23 @@ const translations = {
         title: '🎋 おみくじ 🎋',
         button: 'おみくじを回す',
         description: 'ボタンを押して、今日の運勢を占おう！',
+        historyTitle: '📜 履歴',
+        noHistory: '履歴がありません',
         fortunes: ['大吉', '中吉', '小吉', '吉', '凶', '大凶']
     },
     en: {
         title: '🎋 Fortune Telling 🎋',
         button: 'Draw Fortune',
         description: 'Click the button to see your fortune today!',
+        historyTitle: '📜 History',
+        noHistory: 'No history yet',
         fortunes: ['Great Blessing', 'Middle Blessing', 'Small Blessing', 'Blessing', 'Bad Luck', 'Great Curse']
     }
 };
 
 let currentLanguage = 'ja';
+let fortuneHistory = [];
+const MAX_HISTORY_SIZE = 5;
 
 // For backward compatibility with tests and external code
 const fortunes = translations.ja.fortunes;
@@ -22,6 +28,84 @@ const fortunes = translations.ja.fortunes;
 function getRandomFortune() {
     const randomIndex = Math.floor(Math.random() * translations.ja.fortunes.length);
     return translations[currentLanguage].fortunes[randomIndex];
+}
+
+// History management functions
+function loadHistory() {
+    try {
+        const saved = localStorage.getItem('omikuji-history');
+        if (saved) {
+            const loaded = JSON.parse(saved);
+            fortuneHistory.length = 0; // Clear existing
+            fortuneHistory.push(...loaded); // Add loaded items
+        }
+    } catch (e) {
+        console.warn('Could not load history:', e);
+        fortuneHistory.length = 0;
+    }
+}
+
+function saveHistory() {
+    try {
+        localStorage.setItem('omikuji-history', JSON.stringify(fortuneHistory));
+    } catch (e) {
+        console.warn('Could not save history:', e);
+    }
+}
+
+function addToHistory(fortune) {
+    const entry = {
+        fortune: fortune,
+        timestamp: new Date().toISOString()
+    };
+    
+    fortuneHistory.unshift(entry); // Add to beginning
+    
+    // Keep only the last MAX_HISTORY_SIZE entries
+    if (fortuneHistory.length > MAX_HISTORY_SIZE) {
+        fortuneHistory.length = MAX_HISTORY_SIZE;
+    }
+    
+    saveHistory();
+    updateHistoryUI();
+}
+
+function clearHistory() {
+    fortuneHistory.length = 0;
+    saveHistory();
+    updateHistoryUI();
+}
+
+function getLocale() {
+    return currentLanguage === 'ja' ? 'ja-JP' : 'en-US';
+}
+
+function updateHistoryUI() {
+    const historyList = document.getElementById('historyList');
+    const historyTitle = document.querySelector('.history-title');
+    
+    if (!historyList) return;
+    
+    // Update history title
+    if (historyTitle) {
+        historyTitle.textContent = translations[currentLanguage].historyTitle;
+    }
+    
+    if (fortuneHistory.length === 0) {
+        historyList.innerHTML = `<li class="no-history">${translations[currentLanguage].noHistory}</li>`;
+        return;
+    }
+    
+    historyList.innerHTML = fortuneHistory.map(entry => {
+        const date = new Date(entry.timestamp);
+        const timeString = date.toLocaleString(getLocale(), {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        return `<li><span class="history-fortune">${entry.fortune}</span><span class="history-time">${timeString}</span></li>`;
+    }).join('');
 }
 
 function drawOmikuji() {
@@ -42,6 +126,9 @@ function drawOmikuji() {
         resultElement.textContent = fortune;
         resultElement.classList.remove('spinning');
         resultElement.classList.add('show');
+        
+        // Add to history
+        addToHistory(fortune);
         
         // Remove show class after animation
         setTimeout(() => {
@@ -108,6 +195,9 @@ function updateLanguageUI() {
     
     // Update HTML lang attribute
     document.documentElement.lang = currentLanguage;
+    
+    // Update history UI with new language
+    updateHistoryUI();
 }
 
 // Theme switching functionality
@@ -180,15 +270,23 @@ document.addEventListener('DOMContentLoaded', () => {
         languageToggle.addEventListener('click', toggleLanguage);
     }
     
-    // Initialize theme and language
+    // Initialize theme, language, and history
     initTheme();
     initLanguage();
+    loadHistory();
+    updateHistoryUI();
 });
 
 // Export for testing (Node.js environment)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         fortunes,
-        getRandomFortune
+        getRandomFortune,
+        addToHistory,
+        loadHistory,
+        saveHistory,
+        clearHistory,
+        fortuneHistory,
+        MAX_HISTORY_SIZE
     };
 }
