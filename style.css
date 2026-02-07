@@ -170,6 +170,32 @@ h1 {
     transition: color 0.3s ease;
 }
 
+.history {
+    margin-top: 30px;
+    text-align: left;
+    color: var(--text-color);
+}
+
+.history h2 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.history-list {
+    list-style: decimal;
+    padding-left: 20px;
+    color: var(--text-color);
+}
+
+.history-list li {
+    margin-bottom: 6px;
+}
+
+.history-empty {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg) scale(1); }
     50% { transform: rotate(180deg) scale(1.2); }
